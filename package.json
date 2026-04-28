@@ -1,0 +1,16 @@
+{
+  "name": "doc-generator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "소울브릿지학교 행정 문서(품의결의서 등) 자동 생성기",
+  "scripts": {
+    "fill": "node scripts/fill-hwp.mjs"
+  },
+  "dependencies": {
+    "@rhwp/core": "^0.7.7"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

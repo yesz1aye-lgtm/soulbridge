@@ -1,0 +1,22 @@
+# 의존성
+node_modules/
+
+# 출력 파일 (생성된 문서는 저장소에 포함하지 않음)
+output/*.hwp
+output/*.hwpx
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# 개발 임시 파일
+*.log
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# Claude Code 로컬 설정 (개인 환경 설정은 공유하지 않음)
+.claude/settings.local.json
