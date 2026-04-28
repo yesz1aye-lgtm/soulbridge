@@ -1,5 +1,10 @@
-// template.hwp(raw 예시) → 플레이스홀더가 들어간 진짜 빈 양식으로 변환
-// 원본: 366호 예시 → 결과: templates/품의결의서/template.hwp
+// ⚠️ DEPRECATED — 이 스크립트는 동작하지 않음. 다음 세션에서 재작성 예정.
+// 자세한 진단·대안은 ../answer.md 참조.
+//
+// 시도 1: exportHwp()로 저장 → @rhwp/core 0.7.7 변경 직렬화 실패
+// 시도 2: exportHwpx()로 저장 → 표 셀 텍스트 손실
+// 결론: 라이브러리로는 우리 use case 처리 불가.
+//      raw.hwpx를 한컴에서 직접 변환받은 후 ZIP+XML 직접 편집 방식으로 재구현 필요.
 
 import { readFile, writeFile } from 'node:fs/promises';
 import init, { HwpDocument, init_panic_hook } from '@rhwp/core';
@@ -15,7 +20,7 @@ await init({ module_or_path: wasm });
 init_panic_hook();
 
 const src = './templates/품의결의서/raw.hwp';
-const out = './templates/품의결의서/template.hwp';
+const out = './templates/품의결의서/template.hwpx';
 
 const data = await readFile(src);
 const doc = new HwpDocument(new Uint8Array(data));
@@ -80,5 +85,15 @@ if (leftover?.found) {
   console.warn(`⚠ 처리 안 된 {{ 존재: sec${leftover.section} para${leftover.para} char${leftover.char_offset}`);
 }
 
-await writeFile(out, doc.exportHwp());
+await writeFile(out, doc.exportHwpx());
 console.log(`\n✓ 저장: ${out}`);
+
+// 후검증: 저장된 파일 다시 로드해서 placeholder 실제 잔존 확인
+const reloaded = new HwpDocument(new Uint8Array(await readFile(out)));
+const probe = ['{{품의_제목}}', '{{증제번호}}', '{{금액_숫자}}', '{{내용}}'];
+let verified = 0;
+for (const ph of probe) {
+  const r = JSON.parse(reloaded.replaceAll(ph, ph, false));
+  if (r.count > 0) verified++;
+}
+console.log(`✓ 재로드 검증: ${verified}/${probe.length}개 placeholder 잔존 확인`);
